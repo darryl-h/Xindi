@@ -23,7 +23,7 @@ This is a media center cluster. It contains 6 solutions: Management of TV (sonaa
     1. `mkdir ~/xindi/tdarr/logs`
     1. `mkdir ~/xindi/tdarr/transcode_cache` in the `docker-compose.yml`
 1. Copy the `docker-compose.yml` from this repository to the `~/xindi` directory
-1. Configure the nzbget username and password
+1. Configure the nzbget username and password in the `docker-compose.yml`
     1. `- NZBGET_USER=USERNAME #optional`
     1. `- NZBGET_PASS=PASSWORD #optional`
 1. Configure the deluge PIA username and password in the `docker-compose.yml`
