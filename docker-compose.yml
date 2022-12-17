@@ -22,6 +22,8 @@ services:
         max_attempts: 3
         window: 120s
     network_mode: host
+    ports:
+      - '8888:8888'
     environment:
       - PUID=1000
       - PGID=1000
@@ -31,13 +33,17 @@ services:
       - ./plex/config:/config
       - /docker/data/media/series:/tv
       - /docker/data/media/movies:/movies
-    ports:
-      - '8888:8888'
+
 # Media Compression
   tdarr:
-    container_name: xindi_tdarr
     image: ghcr.io/haveagitgat/tdarr:latest
-    restart: unless-stopped
+    container_name: xindi_tdarr
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
     network_mode: bridge
     ports:
       - 8265:8265 # webUI port
@@ -60,6 +66,7 @@ services:
       - ./tdarr/logs:/app/logs
       - ./tdarr/transcode_cache:/temp
       - /docker/data/media/:/media
+
 # TV Show Monitoring
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -70,6 +77,8 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+    ports:
+      - 8989:8989/tcp # Web UI
     environment:
       - TZ=America/New_York # Specify a timezone to use
       - PUID=1000 # User ID to run as
@@ -78,8 +87,7 @@ services:
       - ./sonarr/config:/config # Contains all relevant configuration files.
       - /docker/data/media/series:/data # Location of all your media
       - /docker/data/download:/downloads #optional
-    ports:
-      - 8989:8989/tcp # Web UI
+
 # Movie Monitoring
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -90,6 +98,8 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+    ports:
+      - 7878:7878/tcp # The port for the Radarr webinterface
     environment:
       - UMASK_SET=022 # control permissions of files and directories created by Radarr
       - TZ=America/New_York # Specify a timezone to use EG America/New_York, this is required for Radarr
@@ -99,8 +109,7 @@ services:
       - ./radarr/config:/config # Database and Radarr configs
       - /docker/data/media/movies:/movies # Location of Movie library on disk (See note in Application setup)
       - /docker/data/download:/downloads # Location of download managers output directory (See note in Application setup)
-    ports:
-      - 7878:7878/tcp # The port for the Radarr webinterface
+
 # DOWNLOADS - Newsgroups
   nzbget:
     image: lscr.io/linuxserver/nzbget:latest
@@ -111,17 +120,18 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
-    volumes:
-      - ./nzbget/config:/config
-      - /docker/data/download:/downloads #optional
+    ports:
+      - '6789:6789'
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=America/New_York
       - NZBGET_USER=USERNAME #optional
       - NZBGET_PASS=PASSWORD #optional
-    ports:
-      - '6789:6789'
+    volumes:
+      - ./nzbget/config:/config
+      - /docker/data/download:/downloads #optional
+
 # DOWNLOADS - Torrents / OpenVPN
   deluge-openvpn:
     image: ebrianne/docker-deluge-openvpn
@@ -132,9 +142,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
-    volumes:
-      - ./deluge/config/:/config
-      - /docker/data/download/:/download
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - '8112:8112'
     environment:
       - PUID=1000 # for UserID
       - PGID=1000 # for GroupID
@@ -143,12 +156,10 @@ services:
       - OPENVPN_USERNAME=user
       - OPENVPN_PASSWORD=pass
       - LOCAL_NETWORK=192.168.0.0/16
-    cap_add:
-      - NET_ADMIN
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1
-    ports:
-      - '8112:8112'
+    volumes:
+      - ./deluge/config/:/config
+      - /docker/data/download/:/download
+
 # DOWNLOADS - Torrent Indexer
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -159,6 +170,8 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+    ports:
+      - 9117:9117
     environment:
       - PUID=1000
       - PGID=1000
@@ -168,8 +181,6 @@ services:
     volumes:
       - ./jackett/config:/config
       - ./jackett/downloads:/downloads
-    ports:
-      - 9117:9117
 
   # tdarr-node:
   #   container_name: tdarr-node
