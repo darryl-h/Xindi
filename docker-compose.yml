@@ -132,33 +132,48 @@ services:
       - ./nzbget/config:/config
       - /docker/data/download:/downloads #optional
 
-# DOWNLOADS - Torrents / OpenVPN
-  deluge-openvpn:
-    image: ebrianne/docker-deluge-openvpn
-    container_name: xindi_deluge-openvpn
+# VPN
+  vpn:
+    image: dperson/openvpn-client
+    container_name: xindi_vpnclient
     deploy:
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1
     cap_add:
-      - NET_ADMIN
-    ports:
-      - '8112:8112'
-    environment:
-      - PUID=1000 # for UserID
-      - PGID=1000 # for GroupID
-      - OPENVPN_PROVIDER=PIA
-      - OPENVPN_CONFIG=France
-      - OPENVPN_USERNAME=user
-      - OPENVPN_PASSWORD=pass
-      - LOCAL_NETWORK=192.168.0.0/16
+      - net_admin # required to modify network interfaces
     volumes:
-      - ./deluge/config/:/config
-      - /docker/data/download/:/download
+      - /dev/net/tun:/dev/net/tun # tun device
+      - ./vpnclient/config:/vpn # OpenVPN configuration
+    security_opt:
+      - label:disable
+    ports:
+      # Deluge
+      - 8112:8112 # port for deluge web UI to be reachable from local network
+      - 51413:51413 # Make sure you configure Deluge to use this port as the incoming port!
+      - 51413:51413/udp
+    entrypoint: ["/sbin/tini", "--", "/usr/bin/openvpn.sh", "-d"]
+
+# DOWNLOADS - Torrents / OpenVPN
+  deluge:
+    image: lscr.io/linuxserver/deluge
+    container_name: xindi_deluge
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    network_mode: service:vpn # run on the vpn network (This is NOT the container_name)
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    volumes:
+      - /docker/data/download:/download # downloads folder
+      - ./deluge/config:/config # config files
 
 # DOWNLOADS - Torrent Indexer
   jackett:
