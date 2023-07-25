@@ -11,6 +11,25 @@ version: '3.8'
 # jackett - 9117
 
 services:
+# Organizer
+  organizr:
+    image: ghcr.io/organizr/organizr:latest
+    container_name: xindi_organizr
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ./organizr/config:/config # Database and Radarr configs
+    ports:
+      - 80:80/tcp # The port for the Radarr webinterface
+
 # Media Server
   plex_server:
     image: lscr.io/linuxserver/plex:latest
