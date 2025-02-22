@@ -60,6 +60,15 @@ It was named after the Star Trek Xindi race which were were six sentient species
   * Volume: Movies:`/mnt/movies`
   * Volume: TVShows:`/mnt/tv`
 
+#### Organizr
+* Image: organizr/organizr:latest 
+* Network:
+  * Network Mode: `Default: NAT`
+  * Ports: 80:80/tcp # Move the NAS to some other port before you do this!
+  * Ports: 443 # unmap this, we don't need it.
+* Storage:
+  * Volume: config_organizr:`/config`
+
 #### Plex
 * Image: linuxserver/plex:latest 
 * Network:
