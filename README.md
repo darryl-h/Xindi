@@ -43,6 +43,10 @@ It was named after the Star Trek Xindi race which were were six sentient species
 
 # Setup on QNAP NAS with Container Station
 
+## Updating Containers
+To update the containers, click on Edit -> Recreate -> put a check in 'Try pulling the image from the registry before creating the container' and then next -> next -> finish
+
+
 ### Basic Containers:
 #### Samba Server
 * Image: crazymax/samba
