@@ -107,7 +107,15 @@ It was named after the Star Trek Xindi race which were were six sentient species
   * Volume: downloads:`/downloads`
 
 ### Applications
-Because we will be sharing the VPN network with another container, we need to create an application for the VPN and containers (the torrent downloader) also note the volumes are mapped wierd, b/c we created the volumes within the "Volumes" witin Container Station and this is their full path.
+* Networking
+  * By default, Container Station does not support using another containers network.
+  * Container Station does not appear to allow different apps to refer to another app's container via the name (IE: `network_mode: container:gluetun` doesn't seem to work, and the child container seems to have no networking)
+  * Based on this, we will need to house both the VPN container, and the child container (the torrent container) in the same app.
+* Using "File Station" we will create the configuration data for these two containers so they don't accidently get pruned by the user.
+  * In `DataVol1/Container` create a new directory called `config_data`
+  * In `DataVol1/Container/config_data` create a new directory called `glutun`
+  * In `DataVol1/Container/config_data` create a new directory called `transmission`
+* The download volumes are mapped wierd (`/share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/`), b/c we are sharing the download volumes with some of the other containers that we are managing fully from Container Station.
 
 ```yaml
 services:
@@ -124,7 +132,7 @@ services:
       - 8388:8388/udp # Shadowsocks
       - 9091:9091/tcp # Transmission WebUI Port
     volumes:
-      - /share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/config_glutun/_data:/gluetun
+      - /share/CACHEDEV1_DATA/Container/config_data/glutun/_data:/gluetun
     environment:
       - PUID=911
       - PGID=911
@@ -153,7 +161,7 @@ services:
       - PUID=911
       - PGID=911
     volumes:
-      - /share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/config_transmission/_data:/config
+      - /share/CACHEDEV1_DATA/Container/config_data/transmission/_data:/config
       - /share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/downloads/_data:/downloads
     restart: unless-stopped
 ```
