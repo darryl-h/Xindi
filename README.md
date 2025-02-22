@@ -9,7 +9,7 @@ This is a media center cluster. It contains 6 solutions:
 
 It was named after the Star Trek Xindi race which were were six sentient species who evolved on the same planet in the Delphic Expanse 
 
-# Setup
+# Linux Docker Setup
 1. Create a directory for media, in my case, I use `/docker/data/` (Or change the locations in the docker-compose.yml file)
     1. Create the directories  
        `mkdir --parents /docker/data/media/movies`  
@@ -42,11 +42,8 @@ It was named after the Star Trek Xindi race which were were six sentient species
     1. Jackett is on port 9117
 
 # Setup on QNAP NAS with Container Station
-
 ## Updating Containers
 To update the containers, click on Edit -> Recreate -> put a check in 'Try pulling the image from the registry before creating the container' and then next -> next -> finish
-
-
 ### Basic Containers:
 #### Samba Server
 * Image: crazymax/samba
