@@ -121,12 +121,12 @@ To update the containers, click on Edit -> Recreate -> put a check in 'Try pulli
 
 ### Applications
 * Networking
-  * By default, Container Station does not support using another containers network.
-  * Container Station does not appear to allow different apps to refer to another app's container via the name (IE: `network_mode: container:gluetun` doesn't seem to work, and the child container seems to have no networking)
-  * Based on this, we will need to house both the VPN container, and the child container (the torrent container) in the same app.
+  * By default, Container Station does not support using another containers network, to get around that, we will use the `Applications` feature in Container Station which allows us to use a docker compose YAML directly.
+  * Container Station does not appear to allow different `Applications` to refer to another `Applications`'s container via the container name (IE: `network_mode: container:gluetun` doesn't seem to work, and the child container seems to have no networking)
+  * Based on this, we will need to house both the VPN container (glutun), and the child container (the torrent container) in the same `Applications`.
 
-* Using "File Station" we will create the configuration data for these two containers so they don't accidently get pruned by the user.
-  * The download volumes are mapped wierd (`/share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/`), b/c we are sharing the download volumes with some of the other containers that we are managing fully from Container Station.
+* Using "File Station" we will create the configuration data for these two containers so they don't accidently get pruned by the user, becuase Container Station is not smart enough to enumerate these for some reason.
+  * The download volumes are mapped wierd (`/share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/`), b/c we are sharing the download volumes with some of the other basic containers that we are managing fully from Container Station.
   * In `DataVol1/Container` create a new directory called `config_data`
   * In `DataVol1/Container/config_data` create a new directory called `glutun`
   * In `DataVol1/Container/config_data` create a new directory called `transmission`
