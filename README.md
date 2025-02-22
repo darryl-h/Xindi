@@ -65,10 +65,36 @@ To update the containers, click on Edit -> Recreate -> put a check in 'Try pulli
 * Image: organizr/organizr:latest 
 * Network:
   * Network Mode: `Default: NAT`
-  * Ports: 80:80/tcp # Move the NAS to some other port before you do this!
+  * Ports: 1701:80/tcp
   * Ports: 443 # unmap this, we don't need it.
 * Storage:
   * Volume: config_organizr:`/config`
+* NOTE:
+You can enable the `Web Server` Application from within the QNAP control planel and redirect users to the Organizr site by:
+1) Placing a file in `DataVol1/Web/` called `index.html`
+2) Adding the following content:
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script>
+      // Get the current protocol (http: or https:) and hostname.
+      var protocol = window.location.protocol;
+      var hostname = window.location.hostname;
+      
+      // Construct the URL with the desired port (1701 in this case)
+      var newUrl = protocol + "//" + hostname + ":1701/";
+      
+      // Redirect to the new URL
+      window.location.replace(newUrl);
+    </script>
+  </head>
+  <body>
+    Redirecting...
+  </body>
+</html>
+```
 
 #### Plex
 * Image: linuxserver/plex:latest 
