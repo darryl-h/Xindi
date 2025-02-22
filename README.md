@@ -120,22 +120,23 @@ To update the containers, click on Edit -> Recreate -> put a check in 'Try pulli
   * Volume: downloads:`/downloads`
 
 ### Applications
-There are some issues trying to use the linuxserver.io https://www.linuxserver.io/  wireguard continaer (https://docs.linuxserver.io/images/docker-wireguard/) working with QNAP (iptables) which I wasn't able to resolve in a meaningful amount of time, so I found and used the gluetun container instead, which supports BOTH VPN and Wireguard. (Pretty slick!)
-
-For Private Internet Access, they do not provide a wireguard configuration, so you will need to create the configs yourself if you want to use WireGuard, OR use OpenVPN
-* triffid's - last update in 2024 - [https://github.com/triffid/pia-wg/tree/master](https://github.com/triffid/pia-wg/tree/master)
-* kchiem's - last update in 2024 - [https://github.com/kchiem/pia-wg](https://github.com/kchiem/pia-wg)
-* hsand's - last update in 2022 - [https://github.com/hsand/pia-wg](https://github.com/hsand/pia-wg)
-
 * Networking
   * By default, Container Station does not support using another containers network.
   * Container Station does not appear to allow different apps to refer to another app's container via the name (IE: `network_mode: container:gluetun` doesn't seem to work, and the child container seems to have no networking)
   * Based on this, we will need to house both the VPN container, and the child container (the torrent container) in the same app.
+
 * Using "File Station" we will create the configuration data for these two containers so they don't accidently get pruned by the user.
+  * The download volumes are mapped wierd (`/share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/`), b/c we are sharing the download volumes with some of the other containers that we are managing fully from Container Station.
   * In `DataVol1/Container` create a new directory called `config_data`
   * In `DataVol1/Container/config_data` create a new directory called `glutun`
   * In `DataVol1/Container/config_data` create a new directory called `transmission`
-* The download volumes are mapped wierd (`/share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/`), b/c we are sharing the download volumes with some of the other containers that we are managing fully from Container Station.
+
+* gluetun VPN Container:
+  * There are some issues trying to use the linuxserver.io https://www.linuxserver.io/  wireguard continaer (https://docs.linuxserver.io/images/docker-wireguard/) working with QNAP (iptables) which I wasn't able to resolve in a meaningful amount of time, so I found and used the gluetun container instead, which supports BOTH VPN and Wireguard. (Pretty slick!)
+  * For Private Internet Access, they do not provide a wireguard configuration, so you will need to create the configs yourself if you want to use WireGuard, OR use OpenVPN
+    * triffid's - last update in 2024 - [https://github.com/triffid/pia-wg/tree/master](https://github.com/triffid/pia-wg/tree/master)
+    * kchiem's - last update in 2024 - [https://github.com/kchiem/pia-wg](https://github.com/kchiem/pia-wg)
+    * hsand's - last update in 2022 - [https://github.com/hsand/pia-wg](https://github.com/hsand/pia-wg)
 
 ```yaml
 services:
