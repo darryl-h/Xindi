@@ -131,6 +131,29 @@ To update the containers, click on Edit -> Recreate -> put a check in 'Try pulli
   * In `DataVol1/Container/config_data` create a new directory called `glutun`
   * In `DataVol1/Container/config_data` create a new directory called `transmission`
 
+* Transmission
+I've created the `manage_transmission.py` script above which is meant to be run from a seperate system and manage torrents within Transmission. It will give the torrent some time to normalize, remove stalled/slow (configurable) torrents, and completed torrents. These are configurable within the script. If you want to use my defaults, you just need to change the TRANSMISSION_HOST value within the script, then set it up on a cron (IE: I run it every 5 minutes with something like this: `*/5 * * * * cd /path/to/script && ./manage_transmission.py`
+
+```bash
+# Transmission RPC settings
+TRANSMISSION_HOST = "TRANSMISSION_IP"
+TRANSMISSION_PORT = 9091
+# If authentication is required, set these:
+TRANSMISSION_USER = ""
+TRANSMISSION_PASS = ""
+
+# Time (in minutes) to wait after torrent is added before checking its stats (for downloading torrents)
+STABILIZATION_DELAY = 15
+
+# For torrents still downloading: if download rate < MIN_DOWNLOAD_RATE (in KB/s)
+# for at least MIN_RATE_DURATION minutes, remove torrent.
+MIN_DOWNLOAD_RATE = 25      # in KB/s
+MIN_RATE_DURATION = 30      # minutes
+
+# For completed torrents: remove the torrent (but not the data) if complete for more than:
+POST_COMPLETION_DELAY = 30  # minutes
+```
+
 * gluetun VPN Container:
   * There are some issues trying to use the linuxserver.io https://www.linuxserver.io/  wireguard continaer (https://docs.linuxserver.io/images/docker-wireguard/) working with QNAP (iptables) which I wasn't able to resolve in a meaningful amount of time, so I found and used the gluetun container instead, which supports BOTH VPN and Wireguard. (Pretty slick!)
   * For Private Internet Access, they do not provide a wireguard configuration, so you will need to create the configs yourself if you want to use WireGuard, OR use OpenVPN
