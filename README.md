@@ -40,3 +40,27 @@ It was named after the Star Trek Xindi race which were were six sentient species
     1. Plex is on port 32400/web
     1. Deluge is on port 8112
     1. Jackett is on port 9117
+
+# Setup on QNAP NAS:
+## tdarr:
+Installation:
+https://docs.tdarr.io/docs/installation/windows-linux-macos
+
+High Level overview:
+1) Run the node
+2) Run the server
+3) Navigate to the server webUI (http://localhost:8265)
+4) Click on the "Libraries" tab (https://youtu.be/KfEc0zy3oGU?si=XaZCdQxlyNTKkRuP&t=261)
+5) Add libraries
+6) Consider turning on 'folder watch'
+7) Add the transcache folder
+8) Click on "Transcode Options"
+9) Move up "Migz Transcode Using Nvidia GPU & FFMPEG" above "Migz Transcode Using CPU & FFMPEG" and enable it
+10) Consider disabling "Migz Transcode Using CPU & FFMPEG"
+11) Click on "Options" then "Scan (Fresh)" or "Scan (Find New)"
+12) Wait for a LONG TIME.
+
+Video tutorial below for step by step instructions:
+https://www.youtube.com/watch?v=KfEc0zy3oGU
+
+
