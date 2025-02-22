@@ -41,8 +41,8 @@ It was named after the Star Trek Xindi race which were were six sentient species
     1. Deluge is on port 8112
     1. Jackett is on port 9117
 
-# Setup on QNAP NAS:
-## Container Station
+# Setup on QNAP NAS with Container Station
+
 ### Basic Containers:
 #### Samba Server
 * Image: crazymax/samba
@@ -107,6 +107,13 @@ It was named after the Star Trek Xindi race which were were six sentient species
   * Volume: downloads:`/downloads`
 
 ### Applications
+There are some issues trying to use the linuxserver.io https://www.linuxserver.io/  wireguard continaer (https://docs.linuxserver.io/images/docker-wireguard/) working with QNAP (iptables) which I wasn't able to resolve in a meaningful amount of time, so I found and used the gluetun container instead, which supports BOTH VPN and Wireguard. (Pretty slick!)
+
+For Private Internet Access, they do not provide a wireguard configuration, so you will need to create the configs yourself if you want to use WireGuard, OR use OpenVPN
+* triffid's - last update in 2024 - [https://github.com/triffid/pia-wg/tree/master](https://github.com/triffid/pia-wg/tree/master)
+* kchiem's - last update in 2024 - [https://github.com/kchiem/pia-wg](https://github.com/kchiem/pia-wg)
+* hsand's - last update in 2022 - [https://github.com/hsand/pia-wg](https://github.com/hsand/pia-wg)
+
 * Networking
   * By default, Container Station does not support using another containers network.
   * Container Station does not appear to allow different apps to refer to another app's container via the name (IE: `network_mode: container:gluetun` doesn't seem to work, and the child container seems to have no networking)
