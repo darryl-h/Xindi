@@ -42,7 +42,124 @@ It was named after the Star Trek Xindi race which were were six sentient species
     1. Jackett is on port 9117
 
 # Setup on QNAP NAS:
+## Container Station
+### Basic Containers:
+#### Samba Server
+* Image: crazymax/samba
+* Network:
+  * Network Mode: `Bridge`
+  * Interface: `Adapter 2- Virtual Switch`
+* Environment:
+  * PGID=`911`
+  * PUID=`911`
+  * SAMBA_SHARES=`movies:/mnt/movies:no:no:yes,downloads:/mnt/downloads:no:no:yes,tv:/mnt/tv:no:no:yes`
+  * SAMBA_USERS=`SomeUser:MySecretPassword`
+* Storage:
+  * Volume: config_samba:`/data`
+  * Volume: downloads:`/mnt/downloads`
+  * Volume: Movies:`/mnt/movies`
+  * Volume: TVShows:`/mnt/tv`
+
+#### Plex
+* Image: linuxserver/plex:latest 
+* Network:
+  * Network Mode: `Host`
+* Storage:
+  * Volume: config_plex:`/config`
+  * Volume: Movies:`/movies`
+  * Volume: TVShows:`/tvshows`
+
+#### Sonarr
+* Image: linuxserver/sonarr:latest
+* Network:
+  * Network Mode: `Host` # This is to get around hairpinning to the indexers/download clients
+* Storage:
+  * Volume: config_sonarr:`/config`
+  * Volume: downloads:`/downloads`
+  * Volume: TVShows:`/tvshows`
+
+#### Radarr
+* Image: linuxserver/radarr:latest
+* Network:
+  * Network Mode: `Host` # This is to get around hairpinning to the indexers/download clients
+* Storage:
+  * Volume: config_plex:`/config`
+  * Volume: downloads:`/downloads`
+  * Volume: Movies:`/movies`
+
+#### Jackett
+* Image: linuxserver/jackett:latest
+* Network:
+  * Network Mode: `Default: NAT`
+  * Ports: 9117:9117/tcp
+* Environment:
+* Storage:
+  * Volume: config_jackett:`/config`
+ 
+#### NZBGet
+* Image: linuxserver/nzbget:latest
+* Network:
+  * Network Mode: `Default: NAT`
+  * Ports: 6789:6789/tcp
+* Environment:
+* Storage:
+  * Volume: config_nzbget:`/config`
+  * Volume: downloads:`/downloads`
+
+### Applications
+Because we will be sharing the VPN network with another container, we need to create an application for the VPN and containers (the torrent downloader) also note the volumes are mapped wierd, b/c we created the volumes within the "Volumes" witin Container Station and this is their full path.
+
+```yaml
+services:
+  glutun_svc:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+      - 9091:9091/tcp # Transmission WebUI Port
+    volumes:
+      - /share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/config_glutun/_data:/gluetun
+    environment:
+      - PUID=911
+      - PGID=911
+      # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
+      - VPN_SERVICE_PROVIDER=private internet access
+      - VPN_TYPE=openvpn
+      # OpenVPN:
+      - OPENVPN_USER=MY_PIA_USERNAME
+      - OPENVPN_PASSWORD=MY_PIA_PASSWORD
+      - SERVER_HOSTNAMES=ca-toronto.privacy.network
+      - PORT_FORWARD_ONLY=true
+      - VPN_PORT_FORWARDING=on
+      # Wireguard:
+      # - WIREGUARD_PRIVATE_KEY=wOEI9rqqbDwnN8/Bpp22sVz48T71vJ4fYmFWujulwUU=
+      # - WIREGUARD_ADDRESSES=10.64.222.21/32
+      # Timezone for accurate log times
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=24h
+      
+  transmission_svc:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    network_mode: service:glutun_svc
+    environment:
+      - PUID=911
+      - PGID=911
+    volumes:
+      - /share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/config_transmission/_data:/config
+      - /share/CACHEDEV1_DATA/Container/container-station-data/lib/docker/volumes/downloads/_data:/downloads
+    restart: unless-stopped
+```
+
 ## tdarr:
+One could install the server on the server, and then have the client running on the nodes, which is probably the right way to do it.
 Installation:
 https://docs.tdarr.io/docs/installation/windows-linux-macos
 
@@ -57,8 +174,9 @@ High Level overview:
 8) Click on "Transcode Options"
 9) Move up "Migz Transcode Using Nvidia GPU & FFMPEG" above "Migz Transcode Using CPU & FFMPEG" and enable it
 10) Consider disabling "Migz Transcode Using CPU & FFMPEG"
-11) Click on "Options" then "Scan (Fresh)" or "Scan (Find New)"
-12) Wait for a LONG TIME.
+11) Consider changing the resolution of the videos -- https://www.reddit.com/r/Tdarr/comments/ifvn36/change_resolution/
+12) Click on "Options" then "Scan (Fresh)" or "Scan (Find New)"
+13) Wait for a LONG TIME.
 
 Video tutorial below for step by step instructions:
 https://www.youtube.com/watch?v=KfEc0zy3oGU
