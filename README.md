@@ -117,7 +117,7 @@ To update the containers, click on Edit -> Recreate -> put a check in 'Try pulli
   * Volume: downloads:`/downloads`
 
 ### Applications
-* Networking
+* Networking  
   * By default, Container Station does not support using another containers network, to get around that, we will use the `Applications` feature in Container Station which allows us to use a docker compose YAML directly.
   * Container Station does not appear to allow different `Applications` to refer to another `Applications`'s container via the container name (IE: `network_mode: container:gluetun` doesn't seem to work, and the child container seems to have no networking)
   * Based on this, we will need to house both the VPN container (glutun), and the child container (the torrent container) in the same `Applications`.
@@ -128,7 +128,7 @@ To update the containers, click on Edit -> Recreate -> put a check in 'Try pulli
   * In `DataVol1/Container/config_data` create a new directory called `glutun`
   * In `DataVol1/Container/config_data` create a new directory called `transmission`
 
-* Transmission
+* Transmission  
 I've created the `manage_transmission.py` script above which is meant to be run from a seperate system and manage torrents within Transmission. It will give the torrent some time to normalize, remove stalled/slow (configurable) torrents, and completed torrents. These are configurable within the script. If you want to use my defaults, you just need to change the TRANSMISSION_HOST value within the script, then set it up on a cron (IE: I run it every 5 minutes with something like this: `*/5 * * * * cd /path/to/script && ./manage_transmission.py`
 
 ```bash
@@ -151,7 +151,7 @@ MIN_RATE_DURATION = 30      # minutes
 POST_COMPLETION_DELAY = 30  # minutes
 ```
 
-* gluetun VPN Container:
+* gluetun VPN Container:  
   * There are some issues trying to use the linuxserver.io https://www.linuxserver.io/  wireguard continaer (https://docs.linuxserver.io/images/docker-wireguard/) working with QNAP (iptables) which I wasn't able to resolve in a meaningful amount of time, so I found and used the gluetun container instead, which supports BOTH VPN and Wireguard. (Pretty slick!)
   * For Private Internet Access, they do not provide a wireguard configuration, so you will need to create the configs yourself if you want to use WireGuard, OR use OpenVPN
     * triffid's - last update in 2024 - [https://github.com/triffid/pia-wg/tree/master](https://github.com/triffid/pia-wg/tree/master)
@@ -207,7 +207,7 @@ services:
     restart: unless-stopped
 ```
 
-## tdarr:
+## tdarr:  
 One could install the server on the server, and then have the client running on the nodes, which is probably the right way to do it.
 Installation:
 https://docs.tdarr.io/docs/installation/windows-linux-macos
