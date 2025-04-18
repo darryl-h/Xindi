@@ -11,6 +11,10 @@ It does the following:
     - Uses doneDate to determine if a torrent has been complete for more than POST_COMPLETION_DELAY minutes
       and, if so, removes the torrent (data is kept).
 Actions are logged to both the console and a log file. A CSV file is used to store state for low-rate torrents.
+
+Installation:
+Something like this in crontab to run every 5 minutes:
+*/5 * * * * cd /home/user/transmission_scripts && ./manage_transmission.py
 """
 
 import sys
