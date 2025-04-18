@@ -53,6 +53,10 @@ MIN_RATE_DURATION = 30      # minutes
 # For completed torrents: remove the torrent (but not the data) if complete for more than:
 POST_COMPLETION_DELAY = 30  # minutes
 
+# Labels which, if present on a torrent, cause it to be completely ignored
+# (no stalled checks, no post‐completion removal)
+IGNORE_LABELS = {"keep", "no-auto-remove"}
+
 # Path to CSV file for storing torrent state (low-rate start time)
 STATE_CSV = "/home/osimages/transmission_scripts/transmission_state.csv"
 
@@ -145,6 +149,12 @@ def main():
             tid = str(torrent.id)
             name = torrent.name
 
+            # Ignore label check
+            labels = set(torrent.fields.get("labels", []))
+            if labels & IGNORE_LABELS:
+                logging.info(f"Torrent {tid} '{name}' has label(s) {labels & IGNORE_LABELS}; ignoring.")
+                continue
+         
             # Get attributes from the torrent's fields
             added_timestamp = torrent.fields.get("addedDate")
             if added_timestamp is None:
